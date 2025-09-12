@@ -8,29 +8,7 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-// SEGURANÇA CORS
-const allowedOrigins = [
-  "http://localhost:5173", // dev frontend, (adicionar também posteriormente o site de produção).
-];
-
-// LOGINS DE ACESSO
-const admLogins = [
-  { email: "mateus@gmail.com", password: "1234" },
-  { email: "luana@gmail.com", password: "1233" },
-];
-
-const corsOptions = {
-  origin: function (origin, callback) {
-    // Permite sem origem (ex.: Postman) ou verifica se está na lista
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Não permitido pelo CORS"));
-    }
-  },
-  credentials: true, // se precisar enviar cookies/autenticação
-};
-// SEGURANÇA CORS
+app.use(cors());
 
 app.use(cors(corsOptions));
 const prisma = new PrismaClient();
