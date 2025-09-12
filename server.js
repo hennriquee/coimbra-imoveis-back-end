@@ -10,6 +10,13 @@ app.use(express.json());
 
 app.use(cors());
 
+// LOGINS DE ACESSO
+const admLogins = [
+  { email: "mateus@gmail.com", password: "1234" },
+  { email: "luana@gmail.com", password: "1233" },
+];
+
+app.use(cors(corsOptions));
 const prisma = new PrismaClient();
 
 app.get("/imoveis", async (req, res) => {
