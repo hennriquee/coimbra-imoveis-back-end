@@ -10,7 +10,6 @@ app.use(express.json());
 
 app.use(cors());
 
-app.use(cors(corsOptions));
 const prisma = new PrismaClient();
 
 app.get("/imoveis", async (req, res) => {
