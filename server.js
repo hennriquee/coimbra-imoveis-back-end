@@ -16,7 +16,6 @@ const admLogins = [
   { email: "luana@gmail.com", password: "1233" },
 ];
 
-app.use(cors(corsOptions));
 const prisma = new PrismaClient();
 
 app.get("/imoveis", async (req, res) => {
