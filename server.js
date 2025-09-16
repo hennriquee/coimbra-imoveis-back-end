@@ -18,6 +18,11 @@ const admLogins = [
 
 const prisma = new PrismaClient();
 
+// Acordar o servidor
+app.get("/", (req, res) => {
+  res.sendStatus(200);
+});
+
 app.get("/imoveis", async (req, res) => {
   const imoveis = await prisma.imovel.findMany();
 
