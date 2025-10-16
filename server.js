@@ -77,17 +77,57 @@ app.post("/login", (req, res) => {
 });
 
 app.put("/edit/:id", async (req, res) => {
-  const { id } = req.params;
-  const imovel = await prisma.imovel.update({
-    where: {
-      id: id,
-    },
+  try {
+    const { id } = req.params;
+    const { title, text, price, removedImages } = req.body;
 
-    data: {
-      ...req.body,
-    },
-  });
-  res.status(200).json(imovel);
+    // Primeiro, atualiza os campos básicos
+    const imovelAtual = await prisma.imovel.findUnique({
+      where: { id },
+      select: { images: true },
+    });
+
+    if (!imovelAtual) {
+      return res.status(404).json({ error: "Imóvel não encontrado." });
+    }
+
+    // Filtra as imagens que permanecerão
+    let novasImagens = imovelAtual.images;
+    if (removedImages && removedImages.length > 0) {
+      novasImagens = imovelAtual.images.filter(
+        (url) => !removedImages.includes(url)
+      );
+
+      // 🔥 Remove do Cloudinary
+      for (const imageUrl of removedImages) {
+        const parts = imageUrl.split("/");
+        const fileName = parts[parts.length - 1];
+        const publicId = fileName.split(".")[0]; // remove extensão
+
+        try {
+          await cloudinary.uploader.destroy(publicId);
+        } catch (err) {
+          console.error("Erro ao deletar do Cloudinary:", err.message);
+        }
+      }
+    }
+
+    // Atualiza no banco com as novas imagens
+    const imovel = await prisma.imovel.update({
+      where: { id },
+      data: {
+        title,
+        text,
+        price,
+        images: novasImagens,
+      },
+    });
+
+    res.status(200).json(imovel);
+  } catch (error) {
+    console.error("Erro ao editar imóvel:", error);
+    res.status(500).json({ error: "Erro ao editar imóvel." });
+  }
 });
 
 app.delete("/imoveis/:id", async (req, res) => {
