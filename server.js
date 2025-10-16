@@ -79,9 +79,9 @@ app.post("/login", (req, res) => {
 app.put("/edit/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, text, price, removedImages } = req.body;
+    const { title, text, price, removedImages, addedImages } = req.body;
 
-    // Primeiro, atualiza os campos básicos
+    // Primeiro, busca o imóvel atual
     const imovelAtual = await prisma.imovel.findUnique({
       where: { id },
       select: { images: true },
@@ -91,18 +91,18 @@ app.put("/edit/:id", async (req, res) => {
       return res.status(404).json({ error: "Imóvel não encontrado." });
     }
 
-    // Filtra as imagens que permanecerão
+    // Remove imagens antigas que foram excluídas
     let novasImagens = imovelAtual.images;
     if (removedImages && removedImages.length > 0) {
       novasImagens = imovelAtual.images.filter(
         (url) => !removedImages.includes(url)
       );
 
-      // 🔥 Remove do Cloudinary
+      // Remove do Cloudinary
       for (const imageUrl of removedImages) {
         const parts = imageUrl.split("/");
         const fileName = parts[parts.length - 1];
-        const publicId = fileName.split(".")[0]; // remove extensão
+        const publicId = fileName.split(".")[0];
 
         try {
           await cloudinary.uploader.destroy(publicId);
@@ -112,7 +112,12 @@ app.put("/edit/:id", async (req, res) => {
       }
     }
 
-    // Atualiza no banco com as novas imagens
+    // Adiciona novas imagens, se houver
+    if (addedImages && addedImages.length > 0) {
+      novasImagens = [...novasImagens, ...addedImages];
+    }
+
+    // Atualiza no banco
     const imovel = await prisma.imovel.update({
       where: { id },
       data: {
