@@ -11,10 +11,7 @@ app.use(express.json());
 app.use(cors());
 
 // LOGINS DE ACESSO
-const admLogins = [
-  { email: "mateus@gmail.com", password: "1234" },
-  { email: "luana@gmail.com", password: "1233" },
-];
+const admLogins = [{ email: "mateussmotors@gmail.com", password: "3320" }];
 
 const prisma = new PrismaClient();
 
@@ -66,7 +63,7 @@ app.post("/imoveis/cadastro", async (req, res) => {
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
   const admin = admLogins.find(
-    (adm) => adm.email === email && adm.password === password
+    (adm) => adm.email === email && adm.password === password,
   );
 
   if (admin) {
@@ -95,7 +92,7 @@ app.put("/edit/:id", async (req, res) => {
     let novasImagens = imovelAtual.images;
     if (removedImages && removedImages.length > 0) {
       novasImagens = imovelAtual.images.filter(
-        (url) => !removedImages.includes(url)
+        (url) => !removedImages.includes(url),
       );
 
       // Remove do Cloudinary
