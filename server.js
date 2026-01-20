@@ -3,6 +3,8 @@ import cors from "cors";
 import { PrismaClient } from "./generated/prisma/index.js";
 import cloudinary from "./cloudinary.js";
 import dotenv from "dotenv";
+import crypto from "crypto";
+
 dotenv.config();
 
 const app = express();
@@ -67,7 +69,8 @@ app.post("/login", (req, res) => {
   );
 
   if (admin) {
-    return res.json({ token: "admloggado.200" });
+    const token = crypto.randomBytes(32).toString("hex");
+    return res.json({ token: token });
   } else {
     return res.status(401).json({ error: "Email ou senha inválidos" });
   }
